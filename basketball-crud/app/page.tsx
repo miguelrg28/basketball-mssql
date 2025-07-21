@@ -67,11 +67,11 @@ export default function HomePage() {
         <div className="flex justify-center space-x-8">
           <div className="text-center">
             <div className="text-lg font-medium text-orange-800">Samuel Olivo</div>
-            <div className="text-sm text-gray-600">Desarrollador</div>
+            <div className="text-sm text-gray-600">1015-</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-medium text-orange-800">Miguel Rodríguez</div>
-            <div className="text-sm text-gray-600">Desarrollador</div>
+            <div className="text-sm text-gray-600">1015-4714</div>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,7 +14,8 @@ import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 import type { Juego, Equipo } from "@/lib/types"
 
-export default function EditarJuegoPage({ params }: { params: { id: string } }) {
+export default function EditarJuegoPage(props: { params: Promise<{ id: string }> }) {
+    const params = use(props.params);
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [loadingData, setLoadingData] = useState(true)

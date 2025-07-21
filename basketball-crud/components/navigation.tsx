@@ -21,10 +21,12 @@ export function Navigation() {
     <nav className="bg-orange-900 text-white shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-2">
-            <div className="text-2xl">🏀</div>
-            <h1 className="text-xl font-bold">Basketball Manager</h1>
-          </div>
+          <Link href="/">
+            <div className="flex items-center space-x-2">
+              <div className="text-2xl">🏀</div>
+              <h1 className="text-xl font-bold">Basketball Manager</h1>
+            </div>
+          </Link>
           <div className="flex space-x-4">
             {navItems.map((item) => (
               <Link

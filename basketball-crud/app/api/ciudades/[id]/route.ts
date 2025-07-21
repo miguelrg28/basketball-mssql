@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { getConnection, sql } from '@/lib/db'
 import type { Ciudad } from '@/lib/types'
 
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
     const { params } = context
     try {
         const pool = await getConnection()
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, context: { params: { id: string 
     }
 }
 
-export async function PUT(request: NextRequest, context: { params: { id: string } }) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
     const { params } = context
     try {
         const body: Ciudad = await request.json()
@@ -41,7 +41,7 @@ export async function PUT(request: NextRequest, context: { params: { id: string 
     }
 }
 
-export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
     const { params } = context
     try {
         const pool = await getConnection()
