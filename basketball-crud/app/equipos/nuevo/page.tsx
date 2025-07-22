@@ -19,7 +19,6 @@ export default function NuevoEquipoPage() {
   const [error, setError] = useState("")
   const [ciudades, setCiudades] = useState<Ciudad[]>([])
   const [formData, setFormData] = useState({
-    CodEquipo: "",
     Nombre: "",
     CodCiudad: "",
   })
@@ -44,17 +43,6 @@ export default function NuevoEquipoPage() {
     setError("")
 
     // Validaciones
-    if (!formData.CodEquipo || !formData.Nombre || !formData.CodCiudad) {
-      setError("Todos los campos son obligatorios")
-      setLoading(false)
-      return
-    }
-
-    if (formData.CodEquipo.length !== 3) {
-      setError("El código debe tener exactamente 3 caracteres")
-      setLoading(false)
-      return
-    }
 
     try {
       const response = await fetch("/api/equipos", {
@@ -99,18 +87,6 @@ export default function NuevoEquipoPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-
-            <div className="space-y-2">
-              <Label htmlFor="codigo">Código Equipo (3 caracteres) *</Label>
-              <Input
-                id="codigo"
-                value={formData.CodEquipo}
-                onChange={(e) => setFormData({ ...formData, CodEquipo: e.target.value.toUpperCase() })}
-                maxLength={3}
-                placeholder="Ej: LAK"
-                required
-              />
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="nombre">Nombre del Equipo *</Label>

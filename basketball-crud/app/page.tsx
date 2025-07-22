@@ -44,7 +44,7 @@ export default function HomePage() {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-orange-900 mb-4">🏀 Basketball Management System</h1>
+        <h1 className="text-4xl font-bold text-orange-900 mb-4 animate-slide">🏀 Basketball Management System</h1>
         <p className="text-lg text-gray-600 mb-8">Sistema completo de gestión para equipos de basketball</p>
       </div>
 
@@ -67,7 +67,7 @@ export default function HomePage() {
         <div className="flex justify-center space-x-8">
           <div className="text-center">
             <div className="text-lg font-medium text-orange-800">Samuel Olivo</div>
-            <div className="text-sm text-gray-600">1015-</div>
+            <div className="text-sm text-gray-600">1015-4465</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-medium text-orange-800">Miguel Rodríguez</div>

@@ -17,7 +17,6 @@ export default function NuevaCiudadPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [formData, setFormData] = useState({
-    CodCiudad: "",
     Nombre: "",
   })
 
@@ -27,7 +26,7 @@ export default function NuevaCiudadPage() {
     setError("")
 
     // Validaciones
-    if (!formData.CodCiudad || !formData.Nombre) {
+    /*if (!formData.CodCiudad || !formData.Nombre) {
       setError("Todos los campos son obligatorios")
       setLoading(false)
       return
@@ -37,7 +36,7 @@ export default function NuevaCiudadPage() {
       setError("El código debe tener exactamente 3 caracteres")
       setLoading(false)
       return
-    }
+    }*/
 
     try {
       const response = await fetch("/api/ciudades", {
@@ -83,7 +82,7 @@ export default function NuevaCiudadPage() {
               </Alert>
             )}
 
-            <div className="space-y-2">
+            {/*<div className="space-y-2">
               <Label htmlFor="codigo">Código (3 caracteres)</Label>
               <Input
                 id="codigo"
@@ -93,7 +92,7 @@ export default function NuevaCiudadPage() {
                 placeholder="Ej: MED"
                 required
               />
-            </div>
+            </div>*/}
 
             <div className="space-y-2">
               <Label htmlFor="nombre">Nombre</Label>

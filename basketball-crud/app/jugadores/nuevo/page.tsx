@@ -20,7 +20,6 @@ export default function NuevoJugadorPage() {
   const [ciudades, setCiudades] = useState<Ciudad[]>([])
   const [equipos, setEquipos] = useState<Equipo[]>([])
   const [formData, setFormData] = useState({
-    CodJugador: "",
     Nombre1: "",
     Apellido1: "",
     Nombre2: "",
@@ -59,7 +58,6 @@ export default function NuevoJugadorPage() {
 
     // Validaciones
     if (
-      !formData.CodJugador ||
       !formData.Nombre1 ||
       !formData.Apellido1 ||
       !formData.CiudadNacim ||
@@ -68,12 +66,6 @@ export default function NuevoJugadorPage() {
       !formData.CodEquipo
     ) {
       setError("Los campos marcados con * son obligatorios")
-      setLoading(false)
-      return
-    }
-
-    if (formData.CodJugador.length !== 5) {
-      setError("El código debe tener exactamente 5 caracteres")
       setLoading(false)
       return
     }
@@ -123,17 +115,7 @@ export default function NuevoJugadorPage() {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="codigo">Código Jugador (5 caracteres) *</Label>
-                <Input
-                  id="codigo"
-                  value={formData.CodJugador}
-                  onChange={(e) => setFormData({ ...formData, CodJugador: e.target.value.toUpperCase() })}
-                  maxLength={5}
-                  placeholder="Ej: JUG01"
-                  required
-                />
-              </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="numero">Número *</Label>

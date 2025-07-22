@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,14 +15,14 @@ import Link from "next/link"
 import type { Juego, Equipo } from "@/lib/types"
 
 export default function EditarJuegoPage(props: { params: Promise<{ id: string }> }) {
-    const params = use(props.params);
+    const params = use(props.params)
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [loadingData, setLoadingData] = useState(true)
     const [error, setError] = useState("")
     const [equipos, setEquipos] = useState<Equipo[]>([])
     const [formData, setFormData] = useState<Juego>({
-        CodJuego: "",
+        codjuego: "",
         Descripcion: "",
         Equipo1: "",
         Equipo2: "",
@@ -130,7 +130,7 @@ export default function EditarJuegoPage(props: { params: Promise<{ id: string }>
 
             <Card className="max-w-md">
                 <CardHeader>
-                    <CardTitle>Editar Juego: {formData.CodJuego}</CardTitle>
+                    <CardTitle>Editar Juego: {formData.codjuego}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -142,7 +142,7 @@ export default function EditarJuegoPage(props: { params: Promise<{ id: string }>
 
                         <div className="space-y-2">
                             <Label htmlFor="codigo">Código Juego</Label>
-                            <Input id="codigo" value={formData.CodJuego} disabled className="bg-gray-100" />
+                            <Input id="codigo" value={formData.codjuego} disabled className="bg-gray-100" />
                         </div>
 
                         <div className="space-y-2">

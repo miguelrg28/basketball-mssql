@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import type { PaginatedResponse } from "@/lib/types"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Search, Plus, Edit, Trash2, Calendar } from "lucide-react"
+import { Search, Plus, Edit, Trash2, Calendar, BarChart3 } from "lucide-react"
 
 export default function JuegosPage() {
   const [juegos, setJuegos] = useState<PaginatedResponse<any> | null>(null)
@@ -100,9 +100,9 @@ export default function JuegosPage() {
                 </TableHeader>
                 <TableBody>
                   {juegos?.data.map((juego: any) => (
-                    <TableRow key={juego.CodJuego}>
+                    <TableRow key={juego.codjuego}>
                       <TableCell>
-                        <Badge variant="outline">{juego.CodJuego}</Badge>
+                        <Badge variant="outline">{juego.codjuego}</Badge>
                       </TableCell>
                       <TableCell className="font-medium">{juego.Descripcion}</TableCell>
                       <TableCell>
@@ -120,7 +120,16 @@ export default function JuegosPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end space-x-2">
-                          <Link href={`/juegos/${juego.CodJuego}/editar`}>
+                          <Link href={`/juegos/${juego.codjuego}/estadisticas`}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-blue-600 hover:text-blue-700 bg-transparent"
+                            >
+                              <BarChart3 className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                          <Link href={`/juegos/${juego.codjuego}/editar`}>
                             <Button variant="outline" size="sm">
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -128,7 +137,7 @@ export default function JuegosPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(juego.CodJuego)}
+                            onClick={() => handleDelete(juego.codjuego)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />
