@@ -41,18 +41,72 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     }
 }
 
-export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-    const { params } = context
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const pool = await getConnection()
+
+        // Primero verificar qué registros dependen de esta ciudad
+        const dependenciasResult = await pool.request().input('CodCiudad', sql.NChar(3), params.id)
+            .query(`
+        SELECT 
+          (SELECT COUNT(*) FROM Equipo WHERE CodCiudad = @CodCiudad) as equipos,
+          (SELECT COUNT(*) FROM Jugador WHERE CiudadNacim = @CodCiudad) as jugadores
+      `)
+
+        const dependencias = dependenciasResult.recordset[0]
+        const totalEquipos = dependencias.equipos
+        const totalJugadores = dependencias.jugadores
+
+        if (totalEquipos > 0 || totalJugadores > 0) {
+            let mensaje = 'No se puede eliminar la ciudad porque está siendo utilizada por:\n'
+
+            if (totalEquipos > 0) {
+                mensaje += `• ${totalEquipos} equipo${totalEquipos > 1 ? 's' : ''}\n`
+            }
+
+            if (totalJugadores > 0) {
+                mensaje += `• ${totalJugadores} jugador${
+                    totalJugadores > 1 ? 'es' : ''
+                } (como ciudad de nacimiento)\n`
+            }
+
+            mensaje += '\nPrimero debe eliminar o reasignar estos registros.'
+
+            return NextResponse.json(
+                {
+                    error: mensaje,
+                    errorType: 'FOREIGN_KEY_CONSTRAINT',
+                    dependencies: {
+                        equipos: totalEquipos,
+                        jugadores: totalJugadores,
+                    },
+                },
+                { status: 409 }
+            )
+        }
+
+        // Si no hay dependencias, proceder con la eliminación
         await pool
             .request()
             .input('CodCiudad', sql.NChar(3), params.id)
             .query('DELETE FROM Ciudad WHERE CodCiudad = @CodCiudad')
 
         return NextResponse.json({ message: 'Ciudad eliminada exitosamente' })
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error deleting ciudad:', error)
+
+        // Capturar errores específicos de SQL Server
+        if (error.number === 547) {
+            // Foreign key constraint error
+            return NextResponse.json(
+                {
+                    error: 'No se puede eliminar la ciudad porque está siendo utilizada por otros registros. Primero debe eliminar o reasignar las referencias a esta ciudad.',
+                    errorType: 'FOREIGN_KEY_CONSTRAINT',
+                },
+                { status: 409 }
+            )
+        }
+
         return NextResponse.json({ error: 'Error al eliminar la ciudad' }, { status: 500 })
     }
 }

@@ -7,15 +7,17 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import type { PaginatedResponse } from "@/lib/types"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Search, Plus, Edit, Trash2, User } from "lucide-react"
+import { Search, Plus, Edit, Trash2, User, AlertTriangle } from "lucide-react"
 
 export default function JugadoresPage() {
   const [jugadores, setJugadores] = useState<PaginatedResponse<any> | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
+  const [deleteError, setDeleteError] = useState("")
 
   const fetchJugadores = async () => {
     setLoading(true)
@@ -39,13 +41,26 @@ export default function JugadoresPage() {
     fetchJugadores()
   }, [page, search])
 
-  const handleDelete = async (id: string) => {
-    if (confirm("¿Estás seguro de que quieres eliminar este jugador?")) {
+  const handleDelete = async (id: string, nombre: string) => {
+    setDeleteError("")
+
+    if (confirm(`¿Estás seguro de que quieres eliminar al jugador "${nombre}"?`)) {
       try {
-        await fetch(`/api/jugadores/${id}`, { method: "DELETE" })
-        fetchJugadores()
+        const response = await fetch(`/api/jugadores/${id}`, { method: "DELETE" })
+        const data = await response.json()
+
+        if (response.ok) {
+          fetchJugadores()
+        } else {
+          if (data.errorType === "FOREIGN_KEY_CONSTRAINT") {
+            setDeleteError(data.error)
+          } else {
+            setDeleteError(data.error || "Error al eliminar el jugador")
+          }
+        }
       } catch (error) {
         console.error("Error deleting jugador:", error)
+        setDeleteError("Error de conexión al eliminar el jugador")
       }
     }
   }
@@ -65,6 +80,16 @@ export default function JugadoresPage() {
           </Button>
         </Link>
       </div>
+
+      {deleteError && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="whitespace-pre-line">{deleteError}</AlertDescription>
+          <Button variant="outline" size="sm" className="mt-2 bg-transparent w-fit" onClick={() => setDeleteError("")}>
+            Cerrar
+          </Button>
+        </Alert>
+      )}
 
       <Card>
         <CardHeader>
@@ -129,7 +154,7 @@ export default function JugadoresPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(jugador.CodJugador)}
+                            onClick={() => handleDelete(jugador.CodJugador, `${jugador.Nombre1} ${jugador.Apellido1}`)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />

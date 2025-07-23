@@ -7,15 +7,17 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import type { Ciudad, PaginatedResponse } from "@/lib/types"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Search, Plus, Edit, Trash2 } from "lucide-react"
+import { Search, Plus, Edit, Trash2, AlertTriangle } from "lucide-react"
 
 export default function CiudadesPage() {
   const [ciudades, setCiudades] = useState<PaginatedResponse<Ciudad> | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
+  const [deleteError, setDeleteError] = useState("")
 
   const fetchCiudades = async () => {
     setLoading(true)
@@ -39,13 +41,26 @@ export default function CiudadesPage() {
     fetchCiudades()
   }, [page, search])
 
-  const handleDelete = async (id: string) => {
-    if (confirm("¿Estás seguro de que quieres eliminar esta ciudad?")) {
+  const handleDelete = async (id: string, nombre: string) => {
+    setDeleteError("")
+
+    if (confirm(`¿Estás seguro de que quieres eliminar la ciudad "${nombre}"?`)) {
       try {
-        await fetch(`/api/ciudades/${id}`, { method: "DELETE" })
-        fetchCiudades()
+        const response = await fetch(`/api/ciudades/${id}`, { method: "DELETE" })
+        const data = await response.json()
+
+        if (response.ok) {
+          fetchCiudades()
+        } else {
+          if (data.errorType === "FOREIGN_KEY_CONSTRAINT") {
+            setDeleteError(data.error)
+          } else {
+            setDeleteError(data.error || "Error al eliminar la ciudad")
+          }
+        }
       } catch (error) {
         console.error("Error deleting ciudad:", error)
+        setDeleteError("Error de conexión al eliminar la ciudad")
       }
     }
   }
@@ -62,6 +77,15 @@ export default function CiudadesPage() {
         </Link>
       </div>
 
+      {deleteError && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="whitespace-pre-line">{deleteError}</AlertDescription>
+          <Button variant="outline" size="sm" className="mt-2 bg-transparent w-fit" onClick={() => setDeleteError("")}>
+            Cerrar
+          </Button>
+        </Alert>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Gestión de Ciudades</CardTitle>
@@ -109,7 +133,7 @@ export default function CiudadesPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(ciudad.CodCiudad)}
+                            onClick={() => handleDelete(ciudad.CodCiudad, ciudad.Nombre)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />
