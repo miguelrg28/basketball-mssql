@@ -43,6 +43,8 @@ export default function NuevaEstadisticaJuegoPage() {
     const [jugadores, setJugadores] = useState<JugadorOption[]>([])
     const [filteredJugadores, setFilteredJugadores] = useState<JugadorOption[]>([])
     const [selectedJuego, setSelectedJuego] = useState<JuegoOption | null>(null)
+    const [isEditingExisting, setIsEditingExisting] = useState(false)
+    const [existingValue, setExistingValue] = useState<number | null>(null)
 
     const [formData, setFormData] = useState({
         CodJuego: "",
@@ -50,6 +52,8 @@ export default function NuevaEstadisticaJuegoPage() {
         CodJugador: "",
         Cantidad: "",
     })
+
+    const [cantidad, setCantidad] = useState("")
 
     useEffect(() => {
         const fetchData = async () => {
@@ -87,10 +91,55 @@ export default function NuevaEstadisticaJuegoPage() {
         }
     }, [formData.CodJuego, selectedJuego, jugadores])
 
+    // Verificar si ya existe la estadística cuando se seleccionan todos los campos
+    useEffect(() => {
+        const checkExistingStatistic = async () => {
+            if (formData.CodJuego && formData.CodEstadistica && formData.CodJugador) {
+                try {
+                    const response = await fetch(
+                        `/api/estadisticas-juego/${formData.CodJuego}/${formData.CodEstadistica}/${formData.CodJugador}`,
+                    )
+
+                    if (response.ok) {
+                        const data = await response.json()
+                        setExistingValue(data.Cantidad)
+                        setCantidad(data.Cantidad.toString())
+                        setIsEditingExisting(true)
+                    } else {
+                        setExistingValue(null)
+                        setCantidad("")
+                        setIsEditingExisting(false)
+                    }
+                } catch (error) {
+                    setExistingValue(null)
+                    setCantidad("")
+                    setIsEditingExisting(false)
+                }
+            } else {
+                setExistingValue(null)
+                setCantidad("")
+                setIsEditingExisting(false)
+            }
+        }
+
+        checkExistingStatistic()
+    }, [formData.CodJuego, formData.CodEstadistica, formData.CodJugador])
+
     const handleJuegoChange = (value: string) => {
         const juego = juegos.find((j) => j.codjuego === value)
         setSelectedJuego(juego || null)
-        setFormData({ ...formData, CodJuego: value, CodJugador: "" })
+        setFormData({ ...formData, CodJuego: value, CodJugador: "", CodEstadistica: "" })
+        setIsEditingExisting(false)
+        setExistingValue(null)
+        setCantidad("")
+    }
+
+    const handleEstadisticaChange = (value: string) => {
+        setFormData({ ...formData, CodEstadistica: value })
+    }
+
+    const handleJugadorChange = (value: string) => {
+        setFormData({ ...formData, CodJugador: value })
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -99,13 +148,13 @@ export default function NuevaEstadisticaJuegoPage() {
         setError("")
 
         // Validaciones
-        if (!formData.CodJuego || !formData.CodEstadistica || !formData.CodJugador || !formData.Cantidad) {
+        if (!formData.CodJuego || !formData.CodEstadistica || !formData.CodJugador || !cantidad) {
             setError("Todos los campos son obligatorios")
             setLoading(false)
             return
         }
 
-        const cantidadNum = Number.parseInt(formData.Cantidad)
+        const cantidadNum = Number.parseInt(cantidad)
         if (isNaN(cantidadNum) || cantidadNum < 0) {
             setError("La cantidad debe ser un número positivo")
             setLoading(false)
@@ -202,10 +251,7 @@ export default function NuevaEstadisticaJuegoPage() {
 
                                 <div className="space-y-2">
                                     <Label htmlFor="estadistica">Tipo de Estadística *</Label>
-                                    <Select
-                                        value={formData.CodEstadistica}
-                                        onValueChange={(value) => setFormData({ ...formData, CodEstadistica: value })}
-                                    >
+                                    <Select value={formData.CodEstadistica} onValueChange={handleEstadisticaChange}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Seleccionar estadística" />
                                         </SelectTrigger>
@@ -221,11 +267,7 @@ export default function NuevaEstadisticaJuegoPage() {
 
                                 <div className="space-y-2">
                                     <Label htmlFor="jugador">Jugador *</Label>
-                                    <Select
-                                        value={formData.CodJugador}
-                                        onValueChange={(value) => setFormData({ ...formData, CodJugador: value })}
-                                        disabled={!formData.CodJuego}
-                                    >
+                                    <Select value={formData.CodJugador} onValueChange={handleJugadorChange} disabled={!formData.CodJuego}>
                                         <SelectTrigger>
                                             <SelectValue
                                                 placeholder={formData.CodJuego ? "Seleccionar jugador" : "Primero selecciona un juego"}
@@ -253,12 +295,21 @@ export default function NuevaEstadisticaJuegoPage() {
                                         id="cantidad"
                                         type="number"
                                         min="0"
-                                        value={formData.Cantidad}
-                                        onChange={(e) => setFormData({ ...formData, Cantidad: e.target.value })}
+                                        value={cantidad}
+                                        onChange={(e) => setCantidad(e.target.value)}
                                         placeholder="Ej: 15"
                                         required
                                     />
                                 </div>
+
+                                {isEditingExisting && existingValue !== null && (
+                                    <Alert className="bg-yellow-50 border-yellow-200">
+                                        <AlertDescription className="text-yellow-800">
+                                            ⚠️ <strong>Editando valor existente:</strong> Esta estadística ya existe con valor {existingValue}.
+                                            Al guardar se actualizará con el nuevo valor.
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
 
                                 <Alert className="bg-blue-50 border-blue-200">
                                     <AlertDescription className="text-blue-800">
@@ -273,7 +324,7 @@ export default function NuevaEstadisticaJuegoPage() {
                                     ) : (
                                         <>
                                             <Save className="w-4 h-4 mr-2" />
-                                            Registrar Estadística
+                                            {isEditingExisting ? "Actualizar Estadística" : "Registrar Estadística"}
                                         </>
                                     )}
                                 </Button>
